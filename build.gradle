@@ -3,6 +3,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+group = "com.github.Tripian-inc"
+artifact = "TRPOne-Android"
+version = "1.0.0"
 android {
     compileSdk = 35
 
