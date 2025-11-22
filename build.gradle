@@ -21,9 +21,10 @@ allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'maven-publish'
 
 group = "com.github.Tripian-inc"
-version = "1.0.0"
+version = "1.0.2"
 
 android {
     compileSdk = 35
