@@ -1,11 +1,30 @@
-plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+// Root build.gradle for TRPOne module
+buildscript {
+    ext.kotlin_version = '1.9.24'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
 
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
 group = "com.github.Tripian-inc"
-artifact = "TRPOne-Android"
 version = "1.0.0"
+
 android {
     compileSdk = 35
 
