@@ -32,6 +32,7 @@ class Poi : Serializable {
     val bookings: List<Booking>? = null
     val mustTries: List<Taste>? = null
     val offers: List<Offer>? = null
+    val locations: List<PoiLocationInfo>? = null
 }
 
 class Coordinate : Serializable {
