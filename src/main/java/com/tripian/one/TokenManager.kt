@@ -69,14 +69,14 @@ object TokenManager {
         TLogger.log("TokenManager.isRefreshTokenExpired refreshToken: ${token?.refreshToken}")
         TLogger.log("TokenManager.isRefreshTokenExpired refreshTokenExpiresAt: ${token?.expiresIn}")
 
-        val isExpired = abs(token!!.expiresIn!! - ((System.currentTimeMillis() - loginTime) / 1000)) < 40
-
-        return if (token == null || token?.expiresIn == null) {
-            true
-        } else {
-            TLogger.log("TokenManager.isRefreshTokenExpired isExpired: $isExpired")
-            isExpired
+        // Check for null first before accessing
+        if (token == null || token?.expiresIn == null) {
+            return true
         }
+
+        val isExpired = abs(token!!.expiresIn!! - ((System.currentTimeMillis() - loginTime) / 1000)) < 40
+        TLogger.log("TokenManager.isRefreshTokenExpired isExpired: $isExpired")
+        return isExpired
     }
 
     suspend fun checkToken() {

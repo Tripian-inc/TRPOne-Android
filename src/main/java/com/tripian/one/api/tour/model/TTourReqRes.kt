@@ -3,7 +3,6 @@ package com.tripian.one.api.tour.model
 import com.tripian.one.api.pois.model.Pagination
 import com.tripian.one.util.BaseRequest
 import com.tripian.one.util.BaseResponse
-import java.io.Serializable
 
 // ------------ request ------------
 
@@ -18,7 +17,7 @@ class TourSearchRequest : BaseRequest() {
     // Optional Search Filters
     var lat: Double? = null
     var lng: Double? = null
-    var instantAvailability: Int? = null  // 0 or 1
+    var instantAvailability: Int = 1  // 0 or 1
     var providerId: Int? = null
     var keywords: String? = null
     var tagIds: String? = null  // Comma-separated
@@ -35,7 +34,7 @@ class TourSearchRequest : BaseRequest() {
 
     // Pagination
     var offset: Int = 0
-    var limit: Int = 30
+    var limit: Int = 10
 
     // Location & Sorting
     var radius: Double? = null    // km
@@ -71,7 +70,7 @@ class TourSearchRequest : BaseRequest() {
                 this.cityId = cityId
                 this.lat = lat
                 this.lng = lng
-                this.instantAvailability = instantAvailability
+                this.instantAvailability = instantAvailability ?: 1
                 this.providerId = providerId
                 this.keywords = keywords
                 this.tagIds = tagIds

@@ -45,8 +45,9 @@ open class TRPRestBase {
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    res.exceptionOrNull()?.let {
-                        if ((it as HttpException).code() == 401) {
+                    res.exceptionOrNull()?.let { exception ->
+                        // Only handle 401 for HttpException, otherwise pass through
+                        if (exception is HttpException && exception.code() == 401) {
                             val resToken = TokenManager.refreshToken()
                             if (resToken.isSuccess) {
                                 TokenManager.token = resToken.getOrNull()?.data
@@ -56,7 +57,7 @@ open class TRPRestBase {
                             }
                             return@withContext
                         }
-                        error?.invoke(res.exceptionOrNull())
+                        error?.invoke(exception)
                     }
                 }
             }

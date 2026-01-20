@@ -42,6 +42,15 @@ class Coordinate : Serializable {
 
 class AdditionalData : Serializable {
     var bookingUrl: String? = null
+    // Activity fields
+    var productId: String? = null
+    var providerId: Int? = null
+    var currency: String? = null
+    var price: Double? = null
+    var version: String? = null
+    var tagIds: List<Int>? = null
+    var tripianPois: List<String>? = null
+    var cancellation: String? = null
 }
 
 class PoiCategoryModel : Serializable {
@@ -89,10 +98,11 @@ class Booking : Serializable {
 class Product : Serializable {
     val id: String? = null
     val title: String? = null
+    val currency: String? = null
     val rating: Float? = null
     val ratingCount: Int? = null
     val price: Float? = null
-    private val info: List<String>? = null
+    val info: List<String>? = null
     val url: String? = null
     val image: String? = null
 }

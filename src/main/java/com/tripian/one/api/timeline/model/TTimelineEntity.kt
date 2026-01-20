@@ -1,6 +1,5 @@
 package com.tripian.one.api.timeline.model
 
-import com.google.gson.annotations.SerializedName
 import com.tripian.one.api.cities.model.City
 import com.tripian.one.api.pois.model.Coordinate
 import com.tripian.one.api.pois.model.Poi
@@ -85,8 +84,10 @@ class TimelineSegmentAdditionalData : Serializable {
     var coordinate: Coordinate? = null
     var cancellation: String? = null
     var price: Double? = null
-    var currency: String? = null   // New field
-    var duration: Double? = null   // New field
+    var currency: String? = null
+    var duration: Double? = null
+    var rating: Double? = null       // Rating value from activity
+    var reviewCount: Int? = null     // Review count from activity
 }
 
 /**
@@ -196,5 +197,7 @@ object GeneratedStatus {
 object SegmentType {
     const val ITINERARY = "itinerary"
     const val BOOKED_ACTIVITY = "booked_activity"
+    const val RESERVED_ACTIVITY = "reserved_activity"
+    const val MANUAL_POI = "manual_poi"
     const val GENERATED = "generated"
 }

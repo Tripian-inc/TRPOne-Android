@@ -728,7 +728,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         success: ((TourSearchResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
-        sendRequest(success, error) { tours.searchTours(request) }
+        // Tour search is a public API, no token required
+        sendRequest(success, error, checkToken = false) { tours.searchTours(request) }
     }
 
     /**
@@ -742,6 +743,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * @param lng Optional - Longitude for location-based search
      * @param keywords Optional - Search keywords
      * @param tagIds Optional - Comma-separated tag IDs
+     * @param providerId Optional - Provider ID for filtering
      * @param minPrice Optional - Minimum price filter (Int)
      * @param maxPrice Optional - Maximum price filter (Int)
      * @param adults Optional - Number of adults
@@ -763,6 +765,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         lng: Double? = null,
         keywords: String? = null,
         tagIds: String? = null,
+        providerId: Int? = null,
         minPrice: Int? = null,
         maxPrice: Int? = null,
         adults: Int? = null,
@@ -784,6 +787,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             lng = lng,
             keywords = keywords,
             tagIds = tagIds,
+            providerId = providerId,
             minPrice = minPrice,
             maxPrice = maxPrice,
             adults = adults,
