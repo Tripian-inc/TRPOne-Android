@@ -98,7 +98,11 @@ object TNetwork {
         builder.readTimeout(sessionTimeout, TimeUnit.SECONDS)
         builder.writeTimeout(sessionTimeout, TimeUnit.SECONDS)
 
-        builder.hostnameVerifier { hostname, session -> true }
+        // Only bypass hostname verification in debug mode
+        // WARNING: Disabling hostname verification in production is a security risk
+        if (TConfig.isDebugMode) {
+            builder.hostnameVerifier { _, _ -> true }
+        }
 
         return builder.build()
     }

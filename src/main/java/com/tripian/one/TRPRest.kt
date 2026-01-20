@@ -102,6 +102,17 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         return TConfig.lang
     }
 
+    /**
+     * Enable or disable debug mode.
+     * When enabled, SSL hostname verification is bypassed (useful for development/testing).
+     * WARNING: Keep disabled (false) in production builds for security.
+     *
+     * @param enabled true to enable debug mode, false for production
+     */
+    fun setDebugMode(enabled: Boolean) {
+        TConfig.isDebugMode = enabled
+    }
+
     private val users: TUsers by lazy { TUsers() }
     private val trips: TTrips by lazy { TTrips() }
     private val companions: TCompanions by lazy { TCompanions() }

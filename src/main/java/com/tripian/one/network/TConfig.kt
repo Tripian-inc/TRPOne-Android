@@ -9,4 +9,11 @@ object TConfig {
     lateinit var key: String
     lateinit var device: Device
     var lang: String = "en"
+
+    /**
+     * Enable debug mode for development.
+     * When true, SSL hostname verification is bypassed.
+     * WARNING: Set to false in production builds for security.
+     */
+    var isDebugMode: Boolean = false
 }
