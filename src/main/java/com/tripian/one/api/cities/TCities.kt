@@ -1,5 +1,7 @@
 package com.tripian.one.api.cities
 
+import com.tripian.one.api.cities.model.CityResolveRequestItem
+import com.tripian.one.api.cities.model.CityResolveResponse
 import com.tripian.one.api.cities.model.GetCitiesResponse
 import com.tripian.one.api.cities.model.GetCityResponse
 import com.tripian.one.network.TNetwork
@@ -15,5 +17,9 @@ internal class TCities {
 
     suspend fun city(cityId: Int): GetCityResponse {
         return service.city(cityId)
+    }
+
+    suspend fun resolve(items: List<CityResolveRequestItem>): CityResolveResponse {
+        return service.resolve(items)
     }
 }

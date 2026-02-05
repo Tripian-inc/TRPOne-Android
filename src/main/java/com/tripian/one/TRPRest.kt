@@ -23,8 +23,11 @@ import com.tripian.one.api.bookings.model.ReservationRequest
 import com.tripian.one.api.bookings.model.ReservationResponse
 import com.tripian.one.api.bookings.model.ReservationsResponse
 import com.tripian.one.api.cities.TCities
+import com.tripian.one.api.cities.model.CityResolveRequestItem
+import com.tripian.one.api.cities.model.CityResolveResponse
 import com.tripian.one.api.cities.model.GetCitiesResponse
 import com.tripian.one.api.cities.model.GetCityResponse
+import com.tripian.one.api.pois.model.Coordinate
 import com.tripian.one.api.companion.TCompanions
 import com.tripian.one.api.companion.model.CompanionRequest
 import com.tripian.one.api.companion.model.CompanionResponse
@@ -422,6 +425,60 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         error: ((Throwable?) -> Unit)? = null
     ) {
         sendRequest(success, error) { cities.city(cityId) }
+    }
+
+    /**
+     * Resolve city IDs from coordinates or city/country names
+     * POST /cities/resolve
+     *
+     * @param items List of CityResolveRequestItem with coordinate or cityName/countryName
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCities(
+        items: List<CityResolveRequestItem>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
+    }
+
+    /**
+     * Resolve city IDs from coordinates
+     * POST /cities/resolve
+     *
+     * Convenience method that creates CityResolveRequestItem list from coordinates
+     *
+     * @param coordinates List of Coordinate objects
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCitiesByCoordinates(
+        coordinates: List<Coordinate>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val items = coordinates.map { CityResolveRequestItem(coordinate = it) }
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
+    }
+
+    /**
+     * Resolve city IDs from city and country names
+     * POST /cities/resolve
+     *
+     * Convenience method that creates CityResolveRequestItem list from city/country name pairs
+     *
+     * @param cityNames List of Pair(cityName, countryName)
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCitiesByNames(
+        cityNames: List<Pair<String, String>>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val items = cityNames.map { CityResolveRequestItem(cityName = it.first, countryName = it.second) }
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
     }
 
     /** endregion */
