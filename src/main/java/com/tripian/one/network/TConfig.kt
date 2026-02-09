@@ -9,6 +9,7 @@ object TConfig {
     lateinit var key: String
     lateinit var device: Device
     var lang: String = "en"
+    var currency: String = "EUR"
 
     /**
      * Enable debug mode for development.

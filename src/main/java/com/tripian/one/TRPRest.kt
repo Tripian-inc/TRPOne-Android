@@ -105,6 +105,14 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         return TConfig.lang
     }
 
+    fun setCurrency(currency: String) {
+        TConfig.currency = currency
+    }
+
+    fun getCurrency(): String {
+        return TConfig.currency
+    }
+
     /**
      * Enable or disable debug mode.
      * When enabled, SSL hostname verification is bypassed (useful for development/testing).
@@ -859,7 +867,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             minPrice = minPrice,
             maxPrice = maxPrice,
             adults = adults,
-            currency = currency,
+            currency = currency ?: TConfig.currency,
             date = date,
             minDuration = minDuration,
             maxDuration = maxDuration,
@@ -911,7 +919,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
     ) {
         val request = TourScheduleRequest.create(
             date = date,
-            currency = currency
+            currency = currency ?: TConfig.currency
         )
         sendRequest(success, error) { tours.getTourSchedule(productId, request) }
     }
