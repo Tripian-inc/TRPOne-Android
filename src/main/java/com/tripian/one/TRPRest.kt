@@ -867,7 +867,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             minPrice = minPrice,
             maxPrice = maxPrice,
             adults = adults,
-            currency = currency ?: TConfig.currency,
+            currency = currency,
             date = date,
             minDuration = minDuration,
             maxDuration = maxDuration,
@@ -919,7 +919,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
     ) {
         val request = TourScheduleRequest.create(
             date = date,
-            currency = currency ?: TConfig.currency
+            currency = currency
         )
         sendRequest(success, error) { tours.getTourSchedule(productId, request) }
     }
