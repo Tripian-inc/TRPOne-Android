@@ -1,6 +1,7 @@
 package com.tripian.one.api.tour.model
 
 import com.tripian.one.api.pois.model.Pagination
+import com.tripian.one.network.TConfig
 import com.tripian.one.util.BaseRequest
 import com.tripian.one.util.BaseResponse
 
@@ -77,7 +78,7 @@ class TourSearchRequest : BaseRequest() {
                 this.minPrice = minPrice
                 this.maxPrice = maxPrice
                 this.adults = adults
-                this.currency = currency
+                this.currency = currency ?: TConfig.currency
                 this.date = date
                 this.hour = hour
                 this.minRating = minRating
@@ -111,7 +112,7 @@ class TourScheduleRequest : BaseRequest() {
         ): TourScheduleRequest {
             return TourScheduleRequest().apply {
                 this.date = date
-                this.currency = currency
+                this.currency = currency ?: TConfig.currency
                 this.lang = lang
             }
         }
