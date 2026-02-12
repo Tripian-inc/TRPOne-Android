@@ -1,8 +1,12 @@
 package com.tripian.one.network.service
 
+import com.tripian.one.api.cities.model.CityResolveRequestItem
+import com.tripian.one.api.cities.model.CityResolveResponse
 import com.tripian.one.api.cities.model.GetCitiesResponse
 import com.tripian.one.api.cities.model.GetCityResponse
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -16,4 +20,7 @@ internal interface TCities {
 
     @GET("cities/{cityId}")
     suspend fun city(@Path("cityId") cityId: Int): GetCityResponse
+
+    @POST("cities/resolve")
+    suspend fun resolve(@Body items: List<CityResolveRequestItem>): CityResolveResponse
 }

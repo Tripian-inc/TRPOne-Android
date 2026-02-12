@@ -2,12 +2,32 @@ package com.tripian.one
 
 import android.content.Context
 import com.tripian.one.api.bookings.TBookings
+import com.tripian.one.api.timeline.TTimeline
+import com.tripian.one.api.timeline.model.CustomPoi
+import com.tripian.one.api.timeline.model.TimelineDeleteResponse
+import com.tripian.one.api.timeline.model.TimelineGenericResponse
+import com.tripian.one.api.timeline.model.TimelinePlansResponse
+import com.tripian.one.api.timeline.model.TimelineResponse
+import com.tripian.one.api.timeline.model.TimelineSegmentSettings
+import com.tripian.one.api.timeline.model.TimelineSettings
+import com.tripian.one.api.timeline.model.TimelineStepCreateRequest
+import com.tripian.one.api.timeline.model.TimelineStepEditRequest
+import com.tripian.one.api.timeline.model.TimelineStepResponse
+import com.tripian.one.api.timeline.model.TimelinesResponse
+import com.tripian.one.api.tour.TTours
+import com.tripian.one.api.tour.model.TourScheduleRequest
+import com.tripian.one.api.tour.model.TourScheduleResponse
+import com.tripian.one.api.tour.model.TourSearchRequest
+import com.tripian.one.api.tour.model.TourSearchResponse
 import com.tripian.one.api.bookings.model.ReservationRequest
 import com.tripian.one.api.bookings.model.ReservationResponse
 import com.tripian.one.api.bookings.model.ReservationsResponse
 import com.tripian.one.api.cities.TCities
+import com.tripian.one.api.cities.model.CityResolveRequestItem
+import com.tripian.one.api.cities.model.CityResolveResponse
 import com.tripian.one.api.cities.model.GetCitiesResponse
 import com.tripian.one.api.cities.model.GetCityResponse
+import com.tripian.one.api.pois.model.Coordinate
 import com.tripian.one.api.companion.TCompanions
 import com.tripian.one.api.companion.model.CompanionRequest
 import com.tripian.one.api.companion.model.CompanionResponse
@@ -85,6 +105,25 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         return TConfig.lang
     }
 
+    fun setCurrency(currency: String) {
+        TConfig.currency = currency
+    }
+
+    fun getCurrency(): String {
+        return TConfig.currency
+    }
+
+    /**
+     * Enable or disable debug mode.
+     * When enabled, SSL hostname verification is bypassed (useful for development/testing).
+     * WARNING: Keep disabled (false) in production builds for security.
+     *
+     * @param enabled true to enable debug mode, false for production
+     */
+    fun setDebugMode(enabled: Boolean) {
+        TConfig.isDebugMode = enabled
+    }
+
     private val users: TUsers by lazy { TUsers() }
     private val trips: TTrips by lazy { TTrips() }
     private val companions: TCompanions by lazy { TCompanions() }
@@ -95,6 +134,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
     private val bookings: TBookings by lazy { TBookings() }
     private val offers: TOffers by lazy { TOffers() }
     private val misc: TMisc by lazy { TMisc() }
+    private val tours: TTours by lazy { TTours() }
+    private val timeline: TTimeline by lazy { TTimeline() }
 
     /**
      * region Users
@@ -394,6 +435,60 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         sendRequest(success, error) { cities.city(cityId) }
     }
 
+    /**
+     * Resolve city IDs from coordinates or city/country names
+     * POST /cities/resolve
+     *
+     * @param items List of CityResolveRequestItem with coordinate or cityName/countryName
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCities(
+        items: List<CityResolveRequestItem>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
+    }
+
+    /**
+     * Resolve city IDs from coordinates
+     * POST /cities/resolve
+     *
+     * Convenience method that creates CityResolveRequestItem list from coordinates
+     *
+     * @param coordinates List of Coordinate objects
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCitiesByCoordinates(
+        coordinates: List<Coordinate>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val items = coordinates.map { CityResolveRequestItem(coordinate = it) }
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
+    }
+
+    /**
+     * Resolve city IDs from city and country names
+     * POST /cities/resolve
+     *
+     * Convenience method that creates CityResolveRequestItem list from city/country name pairs
+     *
+     * @param cityNames List of Pair(cityName, countryName)
+     * @param success Success callback with CityResolveResponse
+     * @param error Error callback
+     */
+    fun resolveCitiesByNames(
+        cityNames: List<Pair<String, String>>,
+        success: ((CityResolveResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val items = cityNames.map { CityResolveRequestItem(cityName = it.first, countryName = it.second) }
+        sendRequest(success, error, checkToken = true) { cities.resolve(items) }
+    }
+
     /** endregion */
 
     /**
@@ -689,4 +784,461 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             misc.getConfigList()
         }
     }
+
+    /**
+     * region Tours
+     */
+
+    /**
+     * Search tours/activities
+     * POST /tour-api/search
+     *
+     * Includes automatic 504 Gateway Timeout retry logic (max 1 retry)
+     *
+     * @param request TourSearchRequest with search parameters
+     * @param success Success callback with TourSearchResponse
+     * @param error Error callback
+     */
+    fun searchTours(
+        request: TourSearchRequest,
+        success: ((TourSearchResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        // Tour search is a public API, no token required
+        sendRequest(success, error, checkToken = false) { tours.searchTours(request) }
+    }
+
+    /**
+     * Search tours/activities with individual parameters
+     * POST /tour-api/search
+     *
+     * Convenience method that creates TourSearchRequest internally
+     *
+     * @param cityId Required - City ID to search tours in
+     * @param lat Optional - Latitude for location-based search
+     * @param lng Optional - Longitude for location-based search
+     * @param keywords Optional - Search keywords
+     * @param tagIds Optional - Comma-separated tag IDs
+     * @param providerId Optional - Provider ID for filtering
+     * @param minPrice Optional - Minimum price filter (Int)
+     * @param maxPrice Optional - Maximum price filter (Int)
+     * @param adults Optional - Number of adults
+     * @param currency Optional - Currency code (e.g., "USD", "EUR")
+     * @param date Optional - Date filter (YYYY-MM-DD)
+     * @param minDuration Optional - Minimum duration in minutes
+     * @param maxDuration Optional - Maximum duration in minutes
+     * @param offset Pagination offset (default 0)
+     * @param limit Pagination limit (default 30)
+     * @param radius Optional - Search radius in km
+     * @param sortingBy Optional - Sort field ("price", "rating")
+     * @param sortingType Optional - Sort direction ("asc", "desc")
+     * @param lang Optional - Language code (e.g., "en", "es")
+     * @param success Success callback with TourSearchResponse
+     * @param error Error callback
+     */
+    fun searchTours(
+        cityId: Int,
+        lat: Double? = null,
+        lng: Double? = null,
+        keywords: String? = null,
+        tagIds: String? = null,
+        providerId: Int? = null,
+        minPrice: Int? = null,
+        maxPrice: Int? = null,
+        adults: Int? = null,
+        currency: String? = null,
+        date: String? = null,
+        minDuration: Int? = null,
+        maxDuration: Int? = null,
+        offset: Int = 0,
+        limit: Int = 30,
+        radius: Double? = null,
+        sortingBy: String? = null,
+        sortingType: String? = null,
+        lang: String? = null,
+        success: ((TourSearchResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val request = TourSearchRequest.create(
+            cityId = cityId,
+            lat = lat,
+            lng = lng,
+            keywords = keywords,
+            tagIds = tagIds,
+            providerId = providerId,
+            minPrice = minPrice,
+            maxPrice = maxPrice,
+            adults = adults,
+            currency = currency,
+            date = date,
+            minDuration = minDuration,
+            maxDuration = maxDuration,
+            lang = lang,
+            offset = offset,
+            limit = limit,
+            radius = radius,
+            sortingBy = sortingBy,
+            sortingType = sortingType
+        )
+        sendRequest(success, error) { tours.searchTours(request) }
+    }
+
+    /**
+     * Get tour schedule/availability
+     * POST /tour-api/{productId}/schedule
+     *
+     * @param productId Tour product ID
+     * @param request TourScheduleRequest with date and optional parameters
+     * @param success Success callback with TourScheduleResponse
+     * @param error Error callback
+     */
+    fun getTourSchedule(
+        productId: String,
+        request: TourScheduleRequest,
+        success: ((TourScheduleResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { tours.getTourSchedule(productId, request) }
+    }
+
+    /**
+     * Get tour schedule/availability with individual parameters
+     * POST /tour-api/{productId}/schedule
+     *
+     * Convenience method that creates TourScheduleRequest internally
+     *
+     * @param productId Tour product ID
+     * @param date Required - Date to check availability (YYYY-MM-DD)
+     * @param currency Optional - Currency code (e.g., "USD")
+     * @param success Success callback with TourScheduleResponse
+     * @param error Error callback
+     */
+    fun getTourSchedule(
+        productId: String,
+        date: String,
+        currency: String? = null,
+        success: ((TourScheduleResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val request = TourScheduleRequest.create(
+            date = date,
+            currency = currency
+        )
+        sendRequest(success, error) { tours.getTourSchedule(productId, request) }
+    }
+
+    /** endregion */
+
+    /**
+     * region Timeline
+     */
+
+    /**
+     * Create a new timeline
+     * POST /timeline
+     *
+     * @param settings TimelineSettings with creation parameters
+     * @param success Success callback with TimelineResponse
+     * @param error Error callback
+     */
+    fun createTimeline(
+        settings: TimelineSettings,
+        success: ((TimelineResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        settings.segments?.forEach { it.currency = TConfig.currency }
+        sendRequest(success, error) { timeline.createTimeline(settings) }
+    }
+
+    /**
+     * Create a new timeline with individual parameters
+     * POST /timeline
+     *
+     * Convenience method that creates TimelineSettings internally
+     *
+     * @param cityId City ID for the timeline
+     * @param adults Number of adults (default 1)
+     * @param children Number of children (default 0)
+     * @param pets Number of pets (default 0)
+     * @param answers List of answer IDs for preferences
+     * @param segments List of TimelineSegmentSettings
+     * @param success Success callback with TimelineResponse
+     * @param error Error callback
+     */
+    fun createTimeline(
+        cityId: Int,
+        adults: Int = 1,
+        children: Int = 0,
+        pets: Int = 0,
+        answers: List<Int> = emptyList(),
+        segments: List<TimelineSegmentSettings>? = null,
+        success: ((TimelineResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        segments?.forEach { it.currency = TConfig.currency }
+        val settings = TimelineSettings.create(
+            cityId = cityId,
+            adults = adults,
+            children = children,
+            pets = pets,
+            answers = answers,
+            segments = segments
+        )
+        sendRequest(success, error) { timeline.createTimeline(settings) }
+    }
+
+    /**
+     * Get timeline by hash
+     * GET /timeline/{hash}
+     *
+     * @param hash Timeline hash identifier
+     * @param success Success callback with TimelineResponse
+     * @param error Error callback
+     */
+    fun getTimeline(
+        hash: String,
+        success: ((TimelineResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.getTimeline(hash) }
+    }
+
+    /**
+     * Edit a segment in the timeline
+     * PUT /timeline/{hash}
+     *
+     * @param hash Timeline hash identifier
+     * @param segment TimelineSegmentSettings with updated values
+     * @param success Success callback with TimelineGenericResponse
+     * @param error Error callback
+     */
+    fun editTimelineSegment(
+        hash: String,
+        segment: TimelineSegmentSettings,
+        success: ((TimelineGenericResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        segment.currency = TConfig.currency
+        sendRequest(success, error) { timeline.editSegment(hash, segment) }
+    }
+
+    /**
+     * Delete a timeline
+     * DELETE /timeline/{hash}
+     *
+     * @param hash Timeline hash identifier
+     * @param success Success callback with TimelineDeleteResponse
+     * @param error Error callback
+     */
+    fun deleteTimeline(
+        hash: String,
+        success: ((TimelineDeleteResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.deleteTimeline(hash) }
+    }
+
+    /**
+     * Delete a segment from the timeline
+     * DELETE /timeline/{hash}/{segmentIndex}
+     *
+     * @param hash Timeline hash identifier
+     * @param segmentIndex Index of the segment to delete
+     * @param success Success callback with TimelineDeleteResponse
+     * @param error Error callback
+     */
+    fun deleteTimelineSegment(
+        hash: String,
+        segmentIndex: Int,
+        success: ((TimelineDeleteResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.deleteSegment(hash, segmentIndex) }
+    }
+
+    /**
+     * Get timeline plans for a specific plan ID
+     * GET /timeline/segment/{planId}
+     *
+     * @param planId Plan identifier
+     * @param success Success callback with TimelinePlansResponse
+     * @param error Error callback
+     */
+    fun getTimelinePlans(
+        planId: String,
+        success: ((TimelinePlansResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.getTimelinePlans(planId) }
+    }
+
+    /**
+     * Get user's timelines with optional filters
+     * GET /timeline
+     *
+     * @param dateFrom Optional start date filter (YYYY-MM-DD)
+     * @param dateTo Optional end date filter (YYYY-MM-DD)
+     * @param limit Maximum number of results (default 100)
+     * @param success Success callback with TimelinesResponse
+     * @param error Error callback
+     */
+    fun getUserTimelines(
+        dateFrom: String? = null,
+        dateTo: String? = null,
+        limit: Int? = 100,
+        success: ((TimelinesResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.getUserTimelines(dateFrom, dateTo, limit) }
+    }
+
+    /**
+     * Add a new step to a timeline plan
+     * POST /timeline/steps
+     *
+     * @param step TimelineStepCreateRequest with step details
+     * @param success Success callback with TimelineStepResponse
+     * @param error Error callback
+     */
+    fun addTimelineStep(
+        step: TimelineStepCreateRequest,
+        success: ((TimelineStepResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.addTimelineStep(step) }
+    }
+
+    /**
+     * Add a new step with existing POI to a timeline plan
+     * POST /timeline/steps
+     *
+     * Convenience method for adding a step with an existing POI
+     *
+     * @param planId Plan identifier
+     * @param poiId POI identifier
+     * @param startTime Optional start time (HH:mm)
+     * @param endTime Optional end time (HH:mm)
+     * @param order Optional step order
+     * @param success Success callback with TimelineStepResponse
+     * @param error Error callback
+     */
+    fun addTimelineStep(
+        planId: Int,
+        poiId: String,
+        startTime: String? = null,
+        endTime: String? = null,
+        order: Int? = null,
+        success: ((TimelineStepResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val step = TimelineStepCreateRequest.create(
+            planId = planId,
+            poiId = poiId,
+            startTime = startTime,
+            endTime = endTime,
+            order = order
+        )
+        sendRequest(success, error) { timeline.addTimelineStep(step) }
+    }
+
+    /**
+     * Add a new step with custom POI to a timeline plan
+     * POST /timeline/steps
+     *
+     * Convenience method for adding a step with a custom POI
+     *
+     * @param planId Plan identifier
+     * @param customPoi CustomPoi with POI details
+     * @param startTime Optional start time (HH:mm)
+     * @param endTime Optional end time (HH:mm)
+     * @param order Optional step order
+     * @param success Success callback with TimelineStepResponse
+     * @param error Error callback
+     */
+    fun addTimelineStepWithCustomPoi(
+        planId: Int,
+        customPoi: CustomPoi,
+        startTime: String? = null,
+        endTime: String? = null,
+        order: Int? = null,
+        success: ((TimelineStepResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val step = TimelineStepCreateRequest.create(
+            planId = planId,
+            customPoi = customPoi,
+            startTime = startTime,
+            endTime = endTime,
+            order = order
+        )
+        sendRequest(success, error) { timeline.addTimelineStep(step) }
+    }
+
+    /**
+     * Edit an existing timeline step
+     * PUT /timeline/steps/{stepId}
+     *
+     * @param stepId Step identifier
+     * @param step TimelineStepEditRequest with updated values
+     * @param success Success callback with TimelineStepResponse
+     * @param error Error callback
+     */
+    fun editTimelineStep(
+        stepId: Int,
+        step: TimelineStepEditRequest,
+        success: ((TimelineStepResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.editTimelineStep(stepId, step) }
+    }
+
+    /**
+     * Edit an existing timeline step with individual parameters
+     * PUT /timeline/steps/{stepId}
+     *
+     * Convenience method for editing a step
+     *
+     * @param stepId Step identifier
+     * @param poiId Optional new POI ID
+     * @param startTime Optional new start time (HH:mm)
+     * @param endTime Optional new end time (HH:mm)
+     * @param order Optional new order
+     * @param success Success callback with TimelineStepResponse
+     * @param error Error callback
+     */
+    fun editTimelineStep(
+        stepId: Int,
+        poiId: String? = null,
+        startTime: String? = null,
+        endTime: String? = null,
+        order: Int? = null,
+        success: ((TimelineStepResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val step = TimelineStepEditRequest.create(
+            poiId = poiId,
+            startTime = startTime,
+            endTime = endTime,
+            order = order
+        )
+        sendRequest(success, error) { timeline.editTimelineStep(stepId, step) }
+    }
+
+    /**
+     * Delete a timeline step
+     * DELETE /timeline/steps/{stepId}
+     *
+     * @param stepId Step identifier
+     * @param success Success callback with TimelineDeleteResponse
+     * @param error Error callback
+     */
+    fun deleteTimelineStep(
+        stepId: Int,
+        success: ((TimelineDeleteResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { timeline.deleteTimelineStep(stepId) }
+    }
+
+    /** endregion */
 }
