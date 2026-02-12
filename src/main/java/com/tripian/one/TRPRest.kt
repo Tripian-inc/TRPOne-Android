@@ -832,6 +832,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * @param radius Optional - Search radius in km
      * @param sortingBy Optional - Sort field ("price", "rating")
      * @param sortingType Optional - Sort direction ("asc", "desc")
+     * @param lang Optional - Language code (e.g., "en", "es")
      * @param success Success callback with TourSearchResponse
      * @param error Error callback
      */
@@ -854,6 +855,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         radius: Double? = null,
         sortingBy: String? = null,
         sortingType: String? = null,
+        lang: String? = null,
         success: ((TourSearchResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
@@ -871,6 +873,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             date = date,
             minDuration = minDuration,
             maxDuration = maxDuration,
+            lang = lang,
             offset = offset,
             limit = limit,
             radius = radius,
@@ -943,6 +946,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         success: ((TimelineResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
+        settings.segments?.forEach { it.currency = TConfig.currency }
         sendRequest(success, error) { timeline.createTimeline(settings) }
     }
 
@@ -971,6 +975,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         success: ((TimelineResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
+        segments?.forEach { it.currency = TConfig.currency }
         val settings = TimelineSettings.create(
             cityId = cityId,
             adults = adults,
@@ -1013,6 +1018,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         success: ((TimelineGenericResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
+        segment.currency = TConfig.currency
         sendRequest(success, error) { timeline.editSegment(hash, segment) }
     }
 

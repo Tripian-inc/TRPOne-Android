@@ -80,6 +80,7 @@ class TimelineSegmentSettings : Serializable {
     var hash: String? = null
     var accommodation: Accommodation? = null
     var destinationAccommodation: Accommodation? = null
+    var currency: String? = null
 
     // Response fields (when reading from API)
     var smartRecommendation: Boolean? = null
@@ -114,7 +115,8 @@ class TimelineSegmentSettings : Serializable {
             available: Boolean = true,
             hash: String? = null,
             accommodation: Accommodation? = null,
-            destinationAccommodation: Accommodation? = null
+            destinationAccommodation: Accommodation? = null,
+            currency: String? = null
         ): TimelineSegmentSettings {
             return TimelineSegmentSettings().apply {
                 this.segmentIndex = segmentIndex
@@ -139,6 +141,7 @@ class TimelineSegmentSettings : Serializable {
                 this.hash = hash
                 this.accommodation = accommodation
                 this.destinationAccommodation = destinationAccommodation
+                this.currency = currency
             }
         }
     }
