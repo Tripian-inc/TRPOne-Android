@@ -39,10 +39,14 @@ internal interface TTimelineService {
      * GET /timeline/{hash}
      *
      * @param hash Timeline hash identifier
+     * @param currency Optional currency code (e.g., "EUR", "USD")
      * @return TimelineResponse containing the Timeline
      */
     @GET("timeline/{hash}")
-    suspend fun getTimeline(@Path("hash") hash: String): TimelineResponse
+    suspend fun getTimeline(
+        @Path("hash") hash: String,
+        @Query("currency") currency: String? = null
+    ): TimelineResponse
 
     /**
      * Edit a segment in the timeline

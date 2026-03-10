@@ -992,15 +992,17 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * GET /timeline/{hash}
      *
      * @param hash Timeline hash identifier
+     * @param currency Optional currency code (e.g., "EUR", "USD")
      * @param success Success callback with TimelineResponse
      * @param error Error callback
      */
     fun getTimeline(
         hash: String,
+        currency: String? = null,
         success: ((TimelineResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
-        sendRequest(success, error) { timeline.getTimeline(hash) }
+        sendRequest(success, error) { timeline.getTimeline(hash, currency) }
     }
 
     /**

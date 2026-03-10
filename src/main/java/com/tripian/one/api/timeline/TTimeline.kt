@@ -35,10 +35,11 @@ internal class TTimeline {
      * Get timeline by hash
      *
      * @param hash Timeline hash identifier
+     * @param currency Optional currency code (e.g., "EUR", "USD")
      * @return TimelineResponse
      */
-    suspend fun getTimeline(hash: String): TimelineResponse {
-        return service.getTimeline(hash)
+    suspend fun getTimeline(hash: String, currency: String? = null): TimelineResponse {
+        return service.getTimeline(hash, currency)
     }
 
     /**
