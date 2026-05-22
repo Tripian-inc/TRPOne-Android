@@ -1,5 +1,8 @@
 package com.tripian.one.api.tour
 
+import com.tripian.one.api.tour.model.TourProductLookupResponse
+import com.tripian.one.api.tour.model.TourScheduleAvailabilityRequest
+import com.tripian.one.api.tour.model.TourScheduleAvailabilityResponse
 import com.tripian.one.api.tour.model.TourScheduleRequest
 import com.tripian.one.api.tour.model.TourScheduleResponse
 import com.tripian.one.api.tour.model.TourSearchRequest
@@ -26,11 +29,6 @@ internal class TTours {
 
     /**
      * Search tours with automatic 504 retry logic
-     *
-     * @param request TourSearchRequest with search parameters
-     * @param retryCount Current retry count (used internally)
-     * @return TourSearchResponse
-     * @throws HttpException if request fails after retries
      */
     suspend fun searchTours(
         request: TourSearchRequest,
@@ -39,7 +37,6 @@ internal class TTours {
         return try {
             service.searchTours(request)
         } catch (e: HttpException) {
-            // Check for 504 Gateway Timeout and retry if within limit
             if (e.code() == 504 && retryCount < MAX_RETRIES) {
                 TLogger.log("$TAG: Tour search received 504 error, retrying (${retryCount + 1}/$MAX_RETRIES)...")
                 delay(RETRY_DELAY_MS)
@@ -52,15 +49,30 @@ internal class TTours {
 
     /**
      * Get tour schedule/availability for a specific product
-     *
-     * @param productId Tour product ID
-     * @param request TourScheduleRequest with date and optional parameters
-     * @return TourScheduleResponse
      */
     suspend fun getTourSchedule(
         productId: String,
         request: TourScheduleRequest
     ): TourScheduleResponse {
         return service.getTourSchedule(productId, request)
+    }
+
+    /**
+     * Lookup a single tour product by provider + product id.
+     */
+    suspend fun lookupTourProduct(
+        providerId: Int,
+        productId: String
+    ): TourProductLookupResponse {
+        return service.lookupTourProduct(providerId, productId)
+    }
+
+    /**
+     * Batch availability lookup for multiple activities on a single date.
+     */
+    suspend fun getTourScheduleAvailability(
+        request: TourScheduleAvailabilityRequest
+    ): TourScheduleAvailabilityResponse {
+        return service.getTourScheduleAvailability(request)
     }
 }

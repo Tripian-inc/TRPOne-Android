@@ -88,6 +88,26 @@ class TimelineSegmentAdditionalData : Serializable {
     var duration: Double? = null
     var rating: Double? = null       // Rating value from activity
     var reviewCount: Int? = null     // Review count from activity
+
+    /**
+     * Marker for activities without a real-world coordinate (e.g. online tour,
+     * audio guide download). When true:
+     *  - the cell shows a "No exact location" badge,
+     *  - the map skips drawing a marker for the segment,
+     *  - city resolution uses `tour-api/product-lookup` instead of coordinate-based
+     *    `cities/resolve`.
+     */
+    @com.google.gson.annotations.SerializedName("is_no_location")
+    var isNoLocation: Boolean = false
+
+    /**
+     * Transient flag set by the post-load availability sweep (Theme 17). Not part
+     * of the server payload — populated locally when a batch
+     * `tour-api/schedule-availability` lookup determines the booking time is no
+     * longer offered on the requested date.
+     */
+    @Transient
+    var isAvailabilityExpired: Boolean = false
 }
 
 /**
@@ -123,6 +143,14 @@ class TimelineStep : Serializable {
     var stepType: String? = null
     var warningMessage: List<String>? = null
     var alternatives: List<String>? = null
+
+    /**
+     * Transient flag set by the post-load availability sweep (Theme 17) when the
+     * step's activity is no longer offered at the booked time. Not part of the
+     * server payload.
+     */
+    @Transient
+    var isAvailabilityExpired: Boolean = false
 }
 
 /**

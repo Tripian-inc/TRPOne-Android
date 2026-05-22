@@ -18,4 +18,8 @@ internal class TMisc {
     suspend fun getPoiCategories(): ConfigListResponse {
         return service.getConfigList()
     }
+
+    suspend fun sendLog(request: LogRequest): LogResponse {
+        return service.sendLog(request)
+    }
 }

@@ -137,3 +137,54 @@ class TourScheduleResponse : BaseResponse() {
     var data: TourSchedule? = null
     var UUID: String? = null
 }
+
+// ------------ schedule availability ------------
+
+/**
+ * `tour-api/schedule-availability` — batch availability lookup across multiple
+ * activities for a single target date.
+ */
+class TourScheduleAvailabilityRequest : BaseRequest() {
+    /** Activity IDs to check, e.g. ["C_163295_15", ...] */
+    var items: List<String> = emptyList()
+
+    /** Target date "YYYY-MM-DD" */
+    var date: String = ""
+
+    /** Currency code (e.g., "EUR"). */
+    var currency: String? = null
+
+    /** Language code (e.g., "en"). */
+    var lang: String? = null
+
+    companion object {
+        fun create(
+            items: List<String>,
+            date: String,
+            currency: String? = null,
+            lang: String? = null
+        ): TourScheduleAvailabilityRequest {
+            return TourScheduleAvailabilityRequest().apply {
+                this.items = items
+                this.date = date
+                this.currency = currency ?: TConfig.currency
+                this.lang = lang
+            }
+        }
+    }
+}
+
+class TourScheduleAvailabilityResponse : BaseResponse() {
+    var data: TourScheduleAvailabilityData? = null
+    var UUID: String? = null
+}
+
+// ------------ product lookup ------------
+
+/**
+ * `tour-api/product-lookup` — fetch a single tour product by `providerId + productId`.
+ */
+class TourProductLookupResponse : BaseResponse() {
+    var data: TourProductLookupData? = null
+    var UUID: String? = null
+}

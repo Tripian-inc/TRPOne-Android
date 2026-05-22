@@ -15,6 +15,9 @@ import com.tripian.one.api.timeline.model.TimelineStepEditRequest
 import com.tripian.one.api.timeline.model.TimelineStepResponse
 import com.tripian.one.api.timeline.model.TimelinesResponse
 import com.tripian.one.api.tour.TTours
+import com.tripian.one.api.tour.model.TourProductLookupResponse
+import com.tripian.one.api.tour.model.TourScheduleAvailabilityRequest
+import com.tripian.one.api.tour.model.TourScheduleAvailabilityResponse
 import com.tripian.one.api.tour.model.TourScheduleRequest
 import com.tripian.one.api.tour.model.TourScheduleResponse
 import com.tripian.one.api.tour.model.TourSearchRequest
@@ -37,6 +40,8 @@ import com.tripian.one.api.favorites.model.FavoriteRequest
 import com.tripian.one.api.favorites.model.FavoriteResponse
 import com.tripian.one.api.favorites.model.FavoritesResponse
 import com.tripian.one.api.misc.model.ConfigListResponse
+import com.tripian.one.api.misc.model.LogRequest
+import com.tripian.one.api.misc.model.LogResponse
 import com.tripian.one.api.misc.model.TMisc
 import com.tripian.one.api.offers.TOffers
 import com.tripian.one.api.offers.model.AddOfferRequest
@@ -424,7 +429,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             }
 
             success?.invoke(it)
-        }, error) { cities.cities(search, countryCode, page, limit) }
+        }, error, checkToken = false) { cities.cities(search, countryCode, page, limit) }
     }
 
     fun city(
@@ -786,6 +791,26 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
     }
 
     /**
+     * Send log to backend
+     * POST /misc/logs
+     *
+     * Fire-and-forget logging - typically used for analytics and debugging
+     *
+     * @param request LogRequest containing the log message
+     * @param success Success callback (optional)
+     * @param error Error callback (optional)
+     */
+    fun sendLog(
+        request: LogRequest,
+        success: ((LogResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error, checkToken = false) {
+            misc.sendLog(request)
+        }
+    }
+
+    /**
      * region Tours
      */
 
@@ -925,6 +950,51 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             currency = currency
         )
         sendRequest(success, error) { tours.getTourSchedule(productId, request) }
+    }
+
+    /**
+     * Lookup a single tour product by provider + product id.
+     * GET /tour-api/product-lookup?providerId={providerId}&productId={productId}
+     *
+     * Used by the SDK to resolve activities whose city / coordinate the timeline
+     * doesn't already carry (e.g. no-location segments).
+     */
+    fun lookupTourProduct(
+        providerId: Int,
+        productId: String,
+        success: ((TourProductLookupResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { tours.lookupTourProduct(providerId, productId) }
+    }
+
+    /**
+     * Batch availability lookup for multiple activities on a single date.
+     * POST /tour-api/schedule-availability
+     *
+     * @param items Activity IDs to check, e.g. ["C_163295_15", ...]
+     * @param date Target date "YYYY-MM-DD"
+     * @param currency Optional currency code
+     * @param lang Optional language code
+     */
+    fun getTourScheduleAvailability(
+        items: List<String>,
+        date: String,
+        currency: String? = null,
+        lang: String? = null,
+        success: ((TourScheduleAvailabilityResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        val request = TourScheduleAvailabilityRequest.create(items, date, currency, lang)
+        sendRequest(success, error) { tours.getTourScheduleAvailability(request) }
+    }
+
+    fun getTourScheduleAvailability(
+        request: TourScheduleAvailabilityRequest,
+        success: ((TourScheduleAvailabilityResponse) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error) { tours.getTourScheduleAvailability(request) }
     }
 
     /** endregion */
