@@ -100,18 +100,21 @@ class TourSearchRequest : BaseRequest() {
  * POST /tour-api/{productId}/schedule
  */
 class TourScheduleRequest : BaseRequest() {
-    var date: String = ""        // Required - "YYYY-MM-DD"
+    var date: String = ""        // Required - "YYYY-MM-DD" (range start when `to` is set)
+    var to: String? = null       // Optional - "YYYY-MM-DD" range end; when set, response uses `dates` buckets
     var currency: String? = null // Optional - "USD"
     var lang: String? = null     // Optional - "en"
 
     companion object {
         fun create(
             date: String,
+            to: String? = null,
             currency: String? = null,
             lang: String? = null
         ): TourScheduleRequest {
             return TourScheduleRequest().apply {
                 this.date = date
+                this.to = to
                 this.currency = currency ?: TConfig.currency
                 this.lang = lang
             }

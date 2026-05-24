@@ -933,7 +933,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * Convenience method that creates TourScheduleRequest internally
      *
      * @param productId Tour product ID
-     * @param date Required - Date to check availability (YYYY-MM-DD)
+     * @param date Required - Date to check availability (YYYY-MM-DD); range start when `to` is set
+     * @param to Optional - Range end date (YYYY-MM-DD); response then carries per-day buckets in `dates`
      * @param currency Optional - Currency code (e.g., "USD")
      * @param success Success callback with TourScheduleResponse
      * @param error Error callback
@@ -941,12 +942,14 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
     fun getTourSchedule(
         productId: String,
         date: String,
+        to: String? = null,
         currency: String? = null,
         success: ((TourScheduleResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
         val request = TourScheduleRequest.create(
             date = date,
+            to = to,
             currency = currency
         )
         sendRequest(success, error) { tours.getTourSchedule(productId, request) }
