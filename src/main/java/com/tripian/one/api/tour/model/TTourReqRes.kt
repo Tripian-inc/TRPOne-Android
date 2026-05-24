@@ -27,6 +27,7 @@ class TourSearchRequest : BaseRequest() {
     var adults: Int? = null
     var currency: String? = null  // "USD", "EUR"
     var date: String? = null      // "YYYY-MM-DD"
+    var to: String? = null        // "YYYY-MM-DD" — range end paired with `date`
     var hour: String? = null
     var minRating: Double? = null
     var minDuration: Int? = null  // Minutes
@@ -56,6 +57,7 @@ class TourSearchRequest : BaseRequest() {
             adults: Int? = null,
             currency: String? = null,
             date: String? = null,
+            to: String? = null,
             hour: String? = null,
             minRating: Double? = null,
             minDuration: Int? = null,
@@ -80,6 +82,7 @@ class TourSearchRequest : BaseRequest() {
                 this.adults = adults
                 this.currency = currency ?: TConfig.currency
                 this.date = date
+                this.to = to
                 this.hour = hour
                 this.minRating = minRating
                 this.minDuration = minDuration

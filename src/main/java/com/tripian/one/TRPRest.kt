@@ -850,6 +850,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * @param adults Optional - Number of adults
      * @param currency Optional - Currency code (e.g., "USD", "EUR")
      * @param date Optional - Date filter (YYYY-MM-DD)
+     * @param to Optional - Range end date (YYYY-MM-DD), paired with `date`
      * @param minDuration Optional - Minimum duration in minutes
      * @param maxDuration Optional - Maximum duration in minutes
      * @param offset Pagination offset (default 0)
@@ -873,6 +874,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         adults: Int? = null,
         currency: String? = null,
         date: String? = null,
+        to: String? = null,
         minDuration: Int? = null,
         maxDuration: Int? = null,
         offset: Int = 0,
@@ -896,6 +898,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             adults = adults,
             currency = currency,
             date = date,
+            to = to,
             minDuration = minDuration,
             maxDuration = maxDuration,
             lang = lang,
