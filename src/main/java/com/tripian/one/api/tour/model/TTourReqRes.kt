@@ -147,7 +147,7 @@ class TourScheduleResponse : BaseResponse() {
 // ------------ schedule availability ------------
 
 /**
- * `tour-api/schedule-availability` — batch availability lookup across multiple
+ * `tour-api/schedule-bulk` — batch availability lookup across multiple
  * activities for a single target date.
  */
 class TourScheduleAvailabilityRequest : BaseRequest() {

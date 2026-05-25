@@ -153,7 +153,7 @@ class TourScheduleDay : Serializable {
  * Tour Schedule Slot model.
  *
  * - [time] "HH:mm" — when **null** the slot is flexible (any-time) for the parent day.
- * - [availableCount] populated by `tour-api/schedule-availability` (remaining capacity).
+ * - [availableCount] populated by `tour-api/schedule-bulk` (remaining capacity).
  */
 class TourScheduleSlot : Serializable {
     /** Often null inside per-day buckets; top-level [TourSchedule.date] carries the day. */
@@ -260,7 +260,7 @@ class TourFacetDurationRange : Serializable {
 // ------------ schedule availability ------------
 
 /**
- * Single entry of the `tour-api/schedule-availability` batch response — pairs the
+ * Single entry of the `tour-api/schedule-bulk` batch response — pairs the
  * requested `activityId` with its resolved schedule for the queried date.
  * `schedule == null` means the backend returned an empty/null schedule for that id
  * (typically: sold out or no slots on the requested day).

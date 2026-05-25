@@ -55,9 +55,9 @@ internal interface TToursService {
 
     /**
      * Batch availability lookup for multiple activities on a single date.
-     * POST /tour-api/schedule-availability
+     * POST /tour-api/schedule-bulk
      */
-    @POST("tour-api/schedule-availability")
+    @POST("tour-api/schedule-bulk")
     suspend fun getTourScheduleAvailability(
         @Body request: TourScheduleAvailabilityRequest
     ): TourScheduleAvailabilityResponse

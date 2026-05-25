@@ -103,7 +103,7 @@ class TimelineSegmentAdditionalData : Serializable {
     /**
      * Transient flag set by the post-load availability sweep (Theme 17). Not part
      * of the server payload — populated locally when a batch
-     * `tour-api/schedule-availability` lookup determines the booking time is no
+     * `tour-api/schedule-bulk` lookup determines the booking time is no
      * longer offered on the requested date.
      */
     @Transient

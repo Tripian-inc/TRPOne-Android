@@ -976,7 +976,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
 
     /**
      * Batch availability lookup for multiple activities on a single date.
-     * POST /tour-api/schedule-availability
+     * POST /tour-api/schedule-bulk
      *
      * @param items Activity IDs to check, e.g. ["C_163295_15", ...]
      * @param date Target date "YYYY-MM-DD"
