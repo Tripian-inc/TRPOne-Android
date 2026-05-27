@@ -102,21 +102,31 @@ object TokenManager {
         return isExpired
     }
 
-    suspend fun checkToken() {
+    suspend fun checkToken(forceRefresh: Boolean = false) {
         // Token info control
-        TLogger.log("TokenManager.checkToken started")
+        TLogger.log("TokenManager.checkToken started (forceRefresh=$forceRefresh)")
 
-        if (isAccessTokenExpired()) {
+        if (forceRefresh || isAccessTokenExpired()) {
             // refreshToken yoksa API çağrısı yapma
             if (token?.refreshToken.isNullOrEmpty()) {
                 TLogger.log("TokenManager.checkToken - No refresh token available, skipping refresh")
                 return
             }
 
+            // forceRefresh path icin staleIdToken'i lock'tan once yakala:
+            // baska bir concurrent istek bizden once refresh ettiyse idToken
+            // degisir ve tekrar refresh atmayiz.
+            val staleIdToken = token?.idToken
+
             // Mutex ile senkronize et - concurrent request'lerde tek refresh
             refreshMutex.withLock {
                 // Double-check: Mutex beklerken baska thread refresh yapmis olabilir
-                if (!isAccessTokenExpired()) {
+                val alreadyRefreshed = if (forceRefresh) {
+                    token?.idToken != staleIdToken
+                } else {
+                    !isAccessTokenExpired()
+                }
+                if (alreadyRefreshed) {
                     TLogger.log("TokenManager.checkToken - Token already refreshed by another request")
                     return
                 }
