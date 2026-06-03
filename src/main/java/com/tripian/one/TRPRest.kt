@@ -818,7 +818,7 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
      * Search tours/activities
      * POST /tour-api/search
      *
-     * Includes automatic 504 Gateway Timeout retry logic (max 1 retry)
+     * Includes automatic 424 Failed Dependency retry logic (max 1 retry)
      *
      * @param request TourSearchRequest with search parameters
      * @param success Success callback with TourSearchResponse

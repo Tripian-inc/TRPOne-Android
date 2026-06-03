@@ -15,7 +15,7 @@ import retrofit2.HttpException
 
 /**
  * Tour API Wrapper
- * Handles Tour Search and Schedule API calls with 504 retry logic
+ * Handles Tour Search and Schedule API calls with 424 retry logic
  */
 internal class TTours {
 
@@ -28,7 +28,7 @@ internal class TTours {
     }
 
     /**
-     * Search tours with automatic 504 retry logic
+     * Search tours with automatic 424 retry logic
      */
     suspend fun searchTours(
         request: TourSearchRequest,
@@ -37,8 +37,8 @@ internal class TTours {
         return try {
             service.searchTours(request)
         } catch (e: HttpException) {
-            if (e.code() == 504 && retryCount < MAX_RETRIES) {
-                TLogger.log("$TAG: Tour search received 504 error, retrying (${retryCount + 1}/$MAX_RETRIES)...")
+            if (e.code() == 424 && retryCount < MAX_RETRIES) {
+                TLogger.log("$TAG: Tour search received 424 error, retrying (${retryCount + 1}/$MAX_RETRIES)...")
                 delay(RETRY_DELAY_MS)
                 searchTours(request, retryCount + 1)
             } else {
