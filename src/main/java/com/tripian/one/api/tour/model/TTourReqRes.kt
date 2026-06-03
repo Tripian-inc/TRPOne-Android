@@ -105,6 +105,7 @@ class TourSearchRequest : BaseRequest() {
 class TourScheduleRequest : BaseRequest() {
     var date: String = ""        // Required - "YYYY-MM-DD" (range start when `to` is set)
     var to: String? = null       // Optional - "YYYY-MM-DD" range end; when set, response uses `dates` buckets
+    var hour: String? = null     // Optional - "H:M" current local time
     var currency: String? = null // Optional - "USD"
     var lang: String? = null     // Optional - "en"
 
@@ -112,12 +113,14 @@ class TourScheduleRequest : BaseRequest() {
         fun create(
             date: String,
             to: String? = null,
+            hour: String? = null,
             currency: String? = null,
             lang: String? = null
         ): TourScheduleRequest {
             return TourScheduleRequest().apply {
                 this.date = date
                 this.to = to
+                this.hour = hour
                 this.currency = currency ?: TConfig.currency
                 this.lang = lang
             }
