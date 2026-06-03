@@ -7,15 +7,12 @@ import java.io.Serializable
  * Tour Product model representing a tour/activity
  */
 class TourProduct : Serializable {
-    @SerializedName("product_id")
     var productId: String = ""
 
-    @SerializedName("provider_id")
     var providerId: Int = 0
 
     var id: String = ""
 
-    @SerializedName("city_id")
     var cityId: Int = 0
 
     var title: String = ""
@@ -35,7 +32,6 @@ class TourProduct : Serializable {
 
     var rating: Double? = null
 
-    @SerializedName("rating_count")
     var ratingCount: Int? = null
 
     var status: Int? = null
@@ -46,20 +42,16 @@ class TourProduct : Serializable {
 
     var images: List<TourImage>? = null
 
-    @SerializedName("location_names")
     var locationNames: List<String>? = null
 
-    @SerializedName("tag_ids")
     var tagIds: List<Int>? = null
 
     var tags: List<String>? = null
 
     var locations: List<TourLocation>? = null
 
-    @SerializedName("tripian_pois")
     var tripianPois: List<String>? = null
 
-    @SerializedName("distance_km")
     var distanceKm: Double? = null
 
     /**
@@ -198,10 +190,8 @@ class TourFacet : Serializable {
     var categories: List<TourFacetCategory>? = null
     var features: List<TourFacetFeature>? = null
 
-    @SerializedName("price_range")
     var priceRange: TourFacetPriceRange? = null
 
-    @SerializedName("duration_range")
     var durationRange: TourFacetDurationRange? = null
 }
 

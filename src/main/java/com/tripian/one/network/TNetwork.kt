@@ -1,5 +1,6 @@
 package com.tripian.one.network
 
+import android.os.Build
 import com.google.gson.GsonBuilder
 import com.tripian.one.TokenManager
 import com.tripian.one.util.TLogger
@@ -15,6 +16,34 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object TNetwork {
+
+    /**
+     * Mirrors the iOS SDK's User-Agent string:
+     *   TRPCoreKit (<bundleId>/<version>; Build/<build>; <os>/<osVersion>; <device>)
+     * Resolved once via lazy; TConfig.appContext must be initialized before any
+     * request fires, which TRPRest.Builder guarantees during SDK setup.
+     */
+    private val userAgentValue: String by lazy {
+        val ctx = TConfig.appContext
+        val pkg = ctx.packageName
+        val info = try {
+            ctx.packageManager.getPackageInfo(pkg, 0)
+        } catch (_: Exception) {
+            null
+        }
+        val appVersion = info?.versionName ?: "0"
+        val buildNumber = when {
+            info == null -> "0"
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> info.longVersionCode.toString()
+            else -> {
+                @Suppress("DEPRECATION")
+                info.versionCode.toString()
+            }
+        }
+        val osVersion = Build.VERSION.RELEASE ?: "0"
+        val deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}".trim()
+        "TRPCoreKit-Android ($pkg/$appVersion; Build/$buildNumber; Android/$osVersion; $deviceModel)"
+    }
 
 //    private fun provideCertificate(): CertificatePinner {
 //        return CertificatePinner.Builder()
@@ -36,6 +65,11 @@ object TNetwork {
         builder.addInterceptor { chain ->
             val originalRequest = chain.request()
             val newRequestBuilder = originalRequest.newBuilder()
+
+            // SDK identity header on every outbound request. `header(...)` is
+            // used (not `addHeader`) so we overwrite the default User-Agent
+            // OkHttp would otherwise stamp on the request.
+            newRequestBuilder.header("User-Agent", userAgentValue)
 
             // For POST requests, add lang to body instead of query parameter
             if (originalRequest.method == "POST") {

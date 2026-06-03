@@ -87,6 +87,11 @@ class TimelineSegmentAdditionalData : Serializable {
     var currency: String? = null
     var duration: Double? = null
     var rating: Double? = null       // Rating value from activity
+    // Wire field name is `ratingCount` per iOS spec (RESERVED_ACTIVITY_SEGMENT
+    // doc §3.2). Without the explicit @SerializedName Gson would look for a
+    // `reviewCount` key that the server doesn't send, and every reserved
+    // activity would show up rating-less even when iOS clients wrote it.
+    @com.google.gson.annotations.SerializedName("ratingCount")
     var reviewCount: Int? = null     // Review count from activity
 
     /**
