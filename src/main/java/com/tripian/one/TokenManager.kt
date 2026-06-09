@@ -14,9 +14,7 @@ import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.greenrobot.eventbus.EventBus
 import retrofit2.HttpException
-import com.tripian.one.util.event.TokenInvalidatedEvent
 
 object TokenManager {
     private val users: TUsers by lazy { TUsers() }
@@ -225,8 +223,6 @@ object TokenManager {
     fun clear() {
         TLogger.log("token cleared")
         token = null
-        // TRPCore'a bildir - login ekranina yonlendirmesi icin
-        EventBus.getDefault().post(TokenInvalidatedEvent("Token invalidated"))
     }
 
     fun headerToken() = token?.idToken?.let { "${token?.tokenType} ${token?.idToken}" } ?: run { null }
