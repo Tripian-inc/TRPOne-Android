@@ -1,5 +1,6 @@
 package com.tripian.one.api.tour.model
 
+import com.google.gson.annotations.SerializedName
 import com.tripian.one.api.pois.model.Pagination
 import com.tripian.one.network.TConfig
 import com.tripian.one.util.BaseRequest
@@ -22,6 +23,9 @@ class TourSearchRequest : BaseRequest() {
     var providerId: Int? = null
     var keywords: String? = null
     var tagIds: String? = null  // Comma-separated
+    // Comma-separated category ids; serialized as `categories` on the wire.
+    @SerializedName("categories")
+    var categoryIds: String? = null
     var minPrice: Int? = null   // Int (not Double)
     var maxPrice: Int? = null   // Int (not Double)
     var adults: Int? = null
@@ -52,6 +56,7 @@ class TourSearchRequest : BaseRequest() {
             providerId: Int? = null,
             keywords: String? = null,
             tagIds: String? = null,
+            categoryIds: String? = null,
             minPrice: Int? = null,
             maxPrice: Int? = null,
             adults: Int? = null,
@@ -77,6 +82,7 @@ class TourSearchRequest : BaseRequest() {
                 this.providerId = providerId
                 this.keywords = keywords
                 this.tagIds = tagIds
+                this.categoryIds = categoryIds
                 this.minPrice = minPrice
                 this.maxPrice = maxPrice
                 this.adults = adults

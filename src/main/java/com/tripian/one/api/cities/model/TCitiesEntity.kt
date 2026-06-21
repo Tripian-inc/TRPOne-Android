@@ -15,6 +15,9 @@ class City : Serializable {
     val country: Country? = null
     val image: Image? = null
     val maxTripDays: Int? = null
+    // IANA timezone id (e.g. "Europe/Madrid") returned by the cities service.
+    // Gson maps this automatically from the JSON "timezone" key.
+    val timezone: String? = null
 }
 
 class Country : Serializable {
