@@ -1,5 +1,6 @@
 package com.tripian.one.api.cities.model
 
+import com.google.gson.annotations.SerializedName
 import com.tripian.one.api.pois.model.Coordinate
 import com.tripian.one.api.pois.model.Image
 import com.tripian.one.api.pois.model.Taste
@@ -18,6 +19,11 @@ class City : Serializable {
     // IANA timezone id (e.g. "Europe/Madrid") returned by the cities service.
     // Gson maps this automatically from the JSON "timezone" key.
     val timezone: String? = null
+    // Whether the city is featured as a "popular" destination by the cities
+    // service (JSON key "isPopular"). Defaults to false so older cached JSON
+    // without the key deserializes safely.
+    @SerializedName("isPopular")
+    val isPopular: Boolean = false
 }
 
 class Country : Serializable {
