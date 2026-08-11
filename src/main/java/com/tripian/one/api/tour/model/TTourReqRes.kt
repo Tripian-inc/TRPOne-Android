@@ -19,7 +19,15 @@ class TourSearchRequest : BaseRequest() {
     // Optional Search Filters
     var lat: Double? = null
     var lng: Double? = null
-    var instantAvailability: Int = 1  // 0 or 1
+
+    /**
+     * Restricts the search to a single POI's products. Location filters are left
+     * out of a request carrying it — they can only narrow the POI's own list.
+     */
+    var poiId: String? = null
+
+    /** 0 or 1; omitted from the request when null so non-instant products stay in the result. */
+    var instantAvailability: Int? = null
     var providerId: Int? = null
     var keywords: String? = null
     var tagIds: String? = null  // Comma-separated
@@ -52,7 +60,8 @@ class TourSearchRequest : BaseRequest() {
             cityId: Int,
             lat: Double? = null,
             lng: Double? = null,
-            instantAvailability: Int? = null,
+            poiId: String? = null,
+            instantAvailability: Int? = 1,
             providerId: Int? = null,
             keywords: String? = null,
             tagIds: String? = null,
@@ -74,11 +83,13 @@ class TourSearchRequest : BaseRequest() {
             sortingBy: String? = null,
             sortingType: String? = null
         ): TourSearchRequest {
+            val isPoiScoped = !poiId.isNullOrBlank()
             return TourSearchRequest().apply {
                 this.cityId = cityId
-                this.lat = lat
-                this.lng = lng
-                this.instantAvailability = instantAvailability ?: 1
+                this.poiId = poiId?.takeIf { it.isNotBlank() }
+                this.lat = if (isPoiScoped) null else lat
+                this.lng = if (isPoiScoped) null else lng
+                this.instantAvailability = instantAvailability
                 this.providerId = providerId
                 this.keywords = keywords
                 this.tagIds = tagIds
@@ -96,7 +107,7 @@ class TourSearchRequest : BaseRequest() {
                 this.lang = lang
                 this.offset = offset
                 this.limit = limit
-                this.radius = radius
+                this.radius = if (isPoiScoped) null else radius
                 this.sortingBy = sortingBy
                 this.sortingType = sortingType
             }
@@ -197,9 +208,36 @@ class TourScheduleAvailabilityResponse : BaseResponse() {
 // ------------ product lookup ------------
 
 /**
+ * Tour Product Lookup Request Model
+ * POST /tour-api/product-lookup
+ */
+class TourProductLookupRequest : BaseRequest() {
+    var providerId: Int = 0      // Required - e.g. 15 (Civitatis)
+    var productId: String = ""   // Required - bare product id, e.g. "51676"
+
+    /**
+     * "es". Left null so the network interceptor stamps the SDK's configured
+     * language on the body — the single source of truth for request language.
+     */
+    var lang: String? = null
+
+    companion object {
+        fun create(
+            providerId: Int,
+            productId: String
+        ): TourProductLookupRequest {
+            return TourProductLookupRequest().apply {
+                this.providerId = providerId
+                this.productId = productId
+            }
+        }
+    }
+}
+
+/**
  * `tour-api/product-lookup` — fetch a single tour product by `providerId + productId`.
  */
 class TourProductLookupResponse : BaseResponse() {
-    var data: TourProductLookupData? = null
+    var data: TourProduct? = null
     var UUID: String? = null
 }

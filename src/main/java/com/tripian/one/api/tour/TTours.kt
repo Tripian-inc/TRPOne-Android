@@ -1,5 +1,6 @@
 package com.tripian.one.api.tour
 
+import com.tripian.one.api.tour.model.TourProductLookupRequest
 import com.tripian.one.api.tour.model.TourProductLookupResponse
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityRequest
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityResponse
@@ -61,10 +62,9 @@ internal class TTours {
      * Lookup a single tour product by provider + product id.
      */
     suspend fun lookupTourProduct(
-        providerId: Int,
-        productId: String
+        request: TourProductLookupRequest
     ): TourProductLookupResponse {
-        return service.lookupTourProduct(providerId, productId)
+        return service.lookupTourProduct(request)
     }
 
     /**

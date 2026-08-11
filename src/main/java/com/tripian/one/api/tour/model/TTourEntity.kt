@@ -269,14 +269,3 @@ class TourScheduleAvailabilityData : Serializable {
     var schedules: List<TourScheduleAvailabilityItem>? = null
 }
 
-// ------------ product lookup ------------
-
-/**
- * `tour-api/product-lookup` returns a single fully populated product (coordinate,
- * city, category included) by `providerId + productId`. Used by the SDK to resolve
- * activities that the timeline doesn't already carry (e.g. no-location segments
- * whose city must be resolved from the product instead of from coordinates).
- */
-class TourProductLookupData : Serializable {
-    var product: TourProduct? = null
-}

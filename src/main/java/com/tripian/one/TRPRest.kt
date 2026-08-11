@@ -15,6 +15,7 @@ import com.tripian.one.api.timeline.model.TimelineStepEditRequest
 import com.tripian.one.api.timeline.model.TimelineStepResponse
 import com.tripian.one.api.timeline.model.TimelinesResponse
 import com.tripian.one.api.tour.TTours
+import com.tripian.one.api.tour.model.TourProductLookupRequest
 import com.tripian.one.api.tour.model.TourProductLookupResponse
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityRequest
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityResponse
@@ -781,6 +782,19 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         }
     }
 
+    /**
+     * Fetches translations for a single language only; the language comes from
+     * the `lang` query parameter the network layer appends.
+     */
+    fun getLanguageValuesV2(
+        success: ((ResponseBody) -> Unit)? = null,
+        error: ((Throwable?) -> Unit)? = null
+    ) {
+        sendRequest(success, error, checkToken = false) {
+            misc.getLanguagesV2()
+        }
+    }
+
     fun getConfigList(
         success: ((ConfigListResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
@@ -866,6 +880,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         cityId: Int,
         lat: Double? = null,
         lng: Double? = null,
+        poiId: String? = null,
+        instantAvailability: Int? = 1,
         keywords: String? = null,
         tagIds: String? = null,
         categoryIds: String? = null,
@@ -891,6 +907,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
             cityId = cityId,
             lat = lat,
             lng = lng,
+            poiId = poiId,
+            instantAvailability = instantAvailability,
             keywords = keywords,
             tagIds = tagIds,
             categoryIds = categoryIds,
@@ -965,10 +983,11 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
 
     /**
      * Lookup a single tour product by provider + product id.
-     * GET /tour-api/product-lookup?providerId={providerId}&productId={productId}
+     * POST /tour-api/product-lookup
      *
      * Used by the SDK to resolve activities whose city / coordinate the timeline
-     * doesn't already carry (e.g. no-location segments).
+     * doesn't already carry (e.g. no-location segments). The request language is
+     * the SDK's currently configured one — see [setLanguage].
      */
     fun lookupTourProduct(
         providerId: Int,
@@ -976,7 +995,8 @@ class TRPRest(appContext: Context, url: String, key: String, device: Device) :
         success: ((TourProductLookupResponse) -> Unit)? = null,
         error: ((Throwable?) -> Unit)? = null
     ) {
-        sendRequest(success, error) { tours.lookupTourProduct(providerId, productId) }
+        val request = TourProductLookupRequest.create(providerId, productId)
+        sendRequest(success, error) { tours.lookupTourProduct(request) }
     }
 
     /**

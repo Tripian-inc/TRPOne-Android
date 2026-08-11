@@ -29,6 +29,10 @@ class Poi : Serializable {
     var gallery: List<Image>? = null
     var image: Image? = null
     var additionalData: AdditionalData? = null
+
+    /** Whether the POI has bookable products; drives the detail screen's products section. */
+    var hasBookings: Boolean? = null
+
     val bookings: List<Booking>? = null
     val mustTries: List<Taste>? = null
     val offers: List<Offer>? = null

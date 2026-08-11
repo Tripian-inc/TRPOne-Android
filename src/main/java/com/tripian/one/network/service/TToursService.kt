@@ -1,5 +1,6 @@
 package com.tripian.one.network.service
 
+import com.tripian.one.api.tour.model.TourProductLookupRequest
 import com.tripian.one.api.tour.model.TourProductLookupResponse
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityRequest
 import com.tripian.one.api.tour.model.TourScheduleAvailabilityResponse
@@ -8,10 +9,8 @@ import com.tripian.one.api.tour.model.TourScheduleResponse
 import com.tripian.one.api.tour.model.TourSearchRequest
 import com.tripian.one.api.tour.model.TourSearchResponse
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 /**
  * Tour API Service Interface
@@ -45,12 +44,13 @@ internal interface TToursService {
 
     /**
      * Lookup a single tour product by provider + product id.
-     * GET /tour-api/product-lookup?providerId={providerId}&productId={productId}
+     * POST /tour-api/product-lookup
+     *
+     * @param request TourProductLookupRequest with providerId, productId and optional lang
      */
-    @GET("tour-api/product-lookup")
+    @POST("tour-api/product-lookup")
     suspend fun lookupTourProduct(
-        @Query("providerId") providerId: Int,
-        @Query("productId") productId: String
+        @Body request: TourProductLookupRequest
     ): TourProductLookupResponse
 
     /**
