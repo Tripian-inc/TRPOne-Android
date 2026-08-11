@@ -11,6 +11,10 @@ internal class TMisc {
         return service.getLanguageValues()
     }
 
+    suspend fun getLanguagesV2(): ResponseBody {
+        return service.getLanguageValuesV2()
+    }
+
     suspend fun getConfigList(): ConfigListResponse {
         return service.getConfigList()
     }

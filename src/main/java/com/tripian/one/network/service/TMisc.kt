@@ -13,6 +13,9 @@ internal interface TMisc {
     @GET("misc/frontend-translations")
     suspend fun getLanguageValues(): ResponseBody
 
+    @GET("misc/frontend-translationsv2")
+    suspend fun getLanguageValuesV2(): ResponseBody
+
     @GET("misc/config-list")
     suspend fun getConfigList(): ConfigListResponse
 
