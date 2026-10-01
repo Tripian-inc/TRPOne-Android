@@ -102,7 +102,7 @@ class TimelineSegmentAdditionalData : Serializable {
      *  - city resolution uses `tour-api/product-lookup` instead of coordinate-based
      *    `cities/resolve`.
      */
-    @com.google.gson.annotations.SerializedName("is_no_location")
+    @com.google.gson.annotations.SerializedName(value = "isNoLocation", alternate = ["is_no_location"])
     var isNoLocation: Boolean = false
 
     /**
