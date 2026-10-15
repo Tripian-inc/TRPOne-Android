@@ -8,6 +8,8 @@ class ConfigList : Serializable {
     val androidVersionName: String? = null
     val apiKey: String? = null
     val baseFeatures: BaseFeatures? = null
+    val googlePlacesApiKey: String? = null
+    val mapboxAccessToken: String? = null
     val providers: Providers? = null
     val sbt: Sbt? = null
     val whiteLabels: WhiteLabels? = null
